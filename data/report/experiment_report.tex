@@ -1,0 +1,472 @@
+\documentclass[sigconf]{acmart}
+
+\AtBeginDocument{ \providecommand\BibTeX{ Bib\TeX } }
+\setcopyright{acmlicensed}
+\copyrightyear{2025}
+\acmYear{2025}
+\acmDOI{XXXXXXX.XXXXXXX}
+
+\acmConference[BI 2025]{Business Intelligence}{-}{-}
+
+\begin{document}
+
+\title{BI2025 Experiment Report - Group 05}
+%% ---Authors: Dynamically added ---
+
+          \author{Ana Zrnic}
+          \authornote{Student A, Matr.Nr.: 52253331}
+          \affiliation{
+            \institution{TU Wien}
+            \country{Austria}
+          }
+          
+          \author{Daria Alekseienkova}
+          \authornote{Student B, Matr.Nr.: 12426894}
+          \affiliation{
+            \institution{TU Wien}
+            \country{Austria}
+          }
+          
+
+\begin{abstract}
+  This report documents the machine learning experiment for Group 05, following the CRISP-DM process model.
+\end{abstract}
+
+\ccsdesc[500]{Computing methodologies~Machine learning}
+\keywords{CRISP-DM, Provenance, Knowledge Graph, Machine Learning}
+
+\maketitle
+
+%% --- 1. Business Understanding ---
+\section{Business Understanding}
+
+\subsection{Data Source and Scenario}
+
+This dataset was taken form the website Kaggle. It is a dataset that contains transactional and demographic information about customers of Ifood, a Brazilian online ordering and delivery platform.
+The dataset originally comes from a public github repository when the Ifood Brain team had a data challenge for the data analyst role hiring process.
+The company wants to understand the spending behavior of its customers to improve effectivness of marketing campaigns with historical customer interactions and their past spending patterns.
+In order to achieve this, we are building a data-driven approach using data mining techniques to analyze customer data and identify patterns and trends in their spending behavior.
+
+
+\subsection{Business Objectives}
+
+The primary business objective of the customer is to predict how much a customer is likely to spend, in order to imporve marketing strategies.
+This allows for better targeting, bugdet allocation and campaing planning.
+Key business questions: 
+- Which variables (behavioral or demographic) are more significant in predicting customer spending?
+- How much is a customer expected to spend based on their profile and past interactions?
+
+
+\subsection{Business Success Criteria}
+
+Business success is achieved if the implemented prediction model improves the marketing team's effectiveness in targeting customers and allocating budgets.
+Measurable criteria:
+-Identify the top 20\% of customers who are the highest spenders before launching a new campaign.
+-Increase revenue by 6\% in the next quarter compared to the previous quarter by targeting high-spending customers.
+-Reduce marketing costs by at least 13\% on customers who are inactive.
+
+Subjective criteria:
+- The model's insights and predictions are positively received and understandable by the marketing team and marketing managers.
+- The model is stable and doesn't drastically change within smaller time frames, which the stakeholders would find reassuring.
+
+
+\subsection{Data Mining Goals}
+
+To support the business objectives, a regression model will be developed to predict customer spending, and to identify which features most strongly influence that spending.
+The outputs of the data mining process will include:
+- Predicted spending value per customer
+- A ranked list of significant features influencing customer spending
+
+What is not part of our data mining goals:
+- Not predicting campaign success probability
+
+
+\subsection{Data Mining Success Criteria}
+
+A successful outcome requires that the regression model achieves acceptable predictive performance, as measured by the following criteria:
+- The coefficient of determination (R\textasciicircum{}2) is at least 0.75, indicating that a significant amount of the variance is explained by the input features.
+- The Mean Absolute Error (MAE) value is below 15\% of the average spending value.
+- The Root Mean Squared Error (RMSE) value is below 10\% of the average spending value.
+
+
+%% --- 2. Data Understanding ---
+\section{Data Understanding}
+
+\subsection{Attribute Types}
+Analysis of attribute types in the iFood marketing dataset. Each attribute was classified as: nominal, ordinal, interval or ratio based on the nature of the data:
+- Nominal: Categorical variables without inherent order (e.g., ID, Marital\_Status)
+- Ordinal: Categorical variables with meaningful order (e.g., Education)
+- Interval: Numeric variables with meaningful differences but no true zero (e.g., Year\_Birth, Dt\_Customer)
+- Ratio: Numeric variables with true zero point (e.g., Income, spending amounts, counts)
+- Nominal-binary: Binary categorical variables (e.g., campaign acceptance flags, Complain, Response)
+
+\subsubsection{Measurement Level Distribution}
+Measurement level distribution:
+- Ratio: 15 attributes (numeric with true zero)
+- Nominal-binary: 7 attributes (binary flags)
+- Nominal: 2 attributes (categorical without order)
+- Interval: 2 attributes (numeric without true zero)
+- Ordinal: 1 attributes (categorical with order)
+- Unknown: 2 attributes (to be investigated)
+
+\subsection{Attribute Units}
+Analysis of attribute units in the iFood marketing dataset. Each attribute was assigned a unit based on its semantic meaning:
+- Identifier: ID column with no unit
+- Year: Birth year
+- Calendar date: Customer enrollment date
+- Days: Time since last purchase (recency)
+- Monetary amount (BRL): All spending columns (wines, fruits, meat, fish, sweets, gold)
+- Count: Number of purchases, deals, web visits
+- Count of people: Number of kids/teens at home
+- Yearly income (BRL): Customer income
+- Binary indicator (0/1): Campaign acceptance flags, complain, response
+- Synthetic score: Z\_CostContact and Z\_Revenue (marketing model scores)
+- Categorical label: Education and Marital\_Status
+
+\subsection{Attribute Semantics}
+Attribute semantics were documented for all 29 features, including customer demographics (ID, Year\_Birth, Education, Marital\_Status), financial data (Income, spending amounts), household composition (Kidhome, Teenhome), behavioral metrics (Recency, purchase counts, web visits), and campaign response indicators (AcceptedCmp1-5, Response).
+
+\subsection{Basic Statistics}
+Computed basic descriptive statistics for 16 numeric attributes in the iFood marketing dataset:
+- Central tendency: mean, median, mode
+- Dispersion: variance, standard deviation, min, max
+- Shape: skewness
+These statistics help understand the distribution and identify potential data quality issues.
+
+\subsection{Correlation Analysis}
+Computed Pearson correlation matrix for 16 numeric attributes in the iFood marketing dataset.
+A correlation heatmap was generated to visualize relationships between variables.
+Key observations:
+- Spending variables (MntWines, MntMeatProducts, MntFishProducts, etc.) show positive correlations with each other
+- Income shows positive correlation with spending amounts
+- NumWebVisitsMonth may show negative correlation with some purchase channels
+
+\subsection{Bias Check}
+
+
+\subsection{Histogram Analysis}
+\subsubsection{Visual Overview}
+Generated histograms for 16 numeric attributes to check for encoding issues and data quality problems.
+Each histogram includes automated warnings for:
+- Constant columns (single unique value)
+- Extreme outliers (|z-score| > 4)
+- Impossible year values (outside 1900-2025 range)
+- Negative income values
+This visual analysis helps identify potential data encoding errors before modeling.
+
+\subsubsection{Outlier Detection}
+Computed outlier summary for 16 numeric attributes using z-score method with threshold |z| > 4.
+Identified extreme outliers that may indicate data quality issues or genuine extreme values.
+This summary provides a quick overview of which columns contain statistical outliers.
+
+\subsection{Categorical Variables}
+\subsubsection{Visual Overview}
+Generated countplots for categorical and binary attributes in the iFood marketing dataset.
+Visualized the distribution of categories for Education, Marital\_Status, and all binary campaign response flags.
+Dt\_Customer was excluded from visualization due to high cardinality (individual dates).
+This analysis helps identify class imbalances and category distributions.
+
+\subsubsection{Encoding Issues}
+Checked categorical and binary attributes for encoding issues including:
+- Placeholder-like values (unknown, null, na, n/a, ?, -)
+- Inconsistent capitalization across categories
+- Rare categories with frequency < 1\%
+- Mixed numeric and text categories
+- Highly imbalanced binary variables (class frequency < 20\%)
+This analysis helps identify data quality issues before preprocessing.
+
+\subsection{Missing Values Analysis}
+Analyzed missing values in the iFood marketing dataset. 
+Found 24 missing values in the Income column out of 2240 total records.
+All other columns have complete data with no missing values.
+This analysis is critical for determining appropriate imputation strategies in the Data Preparation phase.
+
+%% --- 3. Data Preparation ---
+\section{Data Preparation}
+
+\subsection{Data Selection (Task 3.1)}
+Based on the exploratory analysis in the Data Understanding phase, attributes were selected for their predictive relevance to customer spending behavior. 
+Features demonstrating strong correlations with the target variable, such as Income (r=0.79), were retained, while identifiers (ID) and constant-value attributes (Z\_CostContact, Z\_Revenue) were excluded due to lack of variance. 
+The Complain attribute was also excluded given its near-constant distribution (99\% zeros) and negligible correlation (r=-0.037). Campaign acceptance variables were aggregated into TotalCampaignsAccepted to reduce multicollinearity while preserving their combined predictive signal (r=0.456). 
+The target variable TotalSpending was constructed as the sum of all product category expenditures.
+
+\begin{table}[h]
+  \caption{Data Selection Rationale}
+  \label{tab:data-selection}
+  \begin{tabular}{lll}
+    \toprule
+    \textbf{Attribute} & \textbf{Decision} \\
+    \midrule
+    Income & Include \\
+    Year\_Birth & Transform to Age \\
+    Education & Include \\
+    Marital\_Status & Include (consolidate rare values) \\
+    Kidhome, Teenhome & Combine to TotalChildren \\
+    Recency & Include \\
+    Dt\_Customer & Transform to DaysSinceEnrollment \\
+    Mnt* (spending columns) & Aggregate to TotalSpending \\
+    Num* (purchase columns) & Include \\
+    AcceptedCmp1-5, Response & Combine to TotalCampaignsAccepted \\
+    Complain & Exclude \\
+    ID & Exclude \\
+    Z\_CostContact, Z\_Revenue & Exclude \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Data Cleaning (Task 3.2)}
+
+\subsubsection{Missing Values (Task 3.2.1)}
+The Income attribute contained 24 missing values. 
+Rather than deletion, which would result in unnecessary data loss, median imputation was employed. 
+The median was selected over the mean due to the right-skewed nature of the Income distribution, where high-income outliers would disproportionately inflate the mean. 
+Median imputation provides a more robust central tendency estimate while preserving the overall distribution shape and sample size for subsequent regression modeling.
+
+\subsubsection{Age Outliers (Task 3.2.2)}
+Three records with birth years before 1925 (ages over 125) were identified as data entry errors. 
+Mode imputation replaced these outliers to preserve sample size while maintaining distribution integrity.
+
+\subsubsection{Marital Status Consolidation (Task 3.2.3)}
+Rare marital status categories (YOLO, Alone, Absurd) consolidated to Single to reduce dimensionality and improve model stability.
+
+\subsection{Data Construction (Task 3.3)}
+
+\subsubsection{Derived Attributes (Task 3.3.1)}
+Derived features created to improve model interpretability: Age from Year\_Birth, TotalChildren from Kidhome+Teenhome, 
+DaysSinceEnrollment from Dt\_Customer, TotalSpending as regression target, and TotalCampaignsAccepted to reduce dimensionality.
+
+\begin{table}[h]
+  \caption{Derived Attributes}
+  \label{tab:derived-attributes}
+  \begin{tabular}{lp{0.55\linewidth}}
+    \toprule
+    \textbf{Attribute} & \textbf{Derivation} \\
+    \midrule
+    Age & 2024 - Year\_Birth \\
+    TotalChildren & Kidhome + Teenhome \\
+    DaysSinceEnrollment & Days since Dt\_Customer enrollment \\
+    TotalSpending & Sum of MntWines, MntFruits, MntMeat, MntFish, MntSweet, MntGold \\
+    TotalCampaignsAccepted & Sum of AcceptedCmp1-5 + Response \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsubsection{Feature Scaling (Task 3.3.2)}
+StandardScaler applied to normalize feature ranges. 
+Features like Income (0-160K) and Age (24-80) have different scales that would bias distance-based algorithms and regularized regression. 
+Scaling ensures all features contribute equally to the model.
+
+\subsubsection{Categorical Encoding (Task 3.3.3)}
+One-hot encoding converts categorical text (Education, Marital\_Status) to binary columns. This allows ML algorithms to process categories without imposing artificial ordinal relationships.
+
+
+%% --- 4. Modeling ---
+\section{Modeling}
+
+\subsection{Algorithm Selection (Task 4.1)}
+
+Random Forest Regressor selected for predicting customer spending.
+Target: TotalSpending
+
+Rationale:
+- Handles non-linear relationships between features and target
+- Robust to outliers and doesn't require feature scaling for tree-based splits
+- Provides feature importance rankings (required by data mining goals)
+- Reduces overfitting through ensemble averaging
+
+Success criteria from Business Understanding (evaluated on original scale):
+- R² ≥ 0.75
+- MAE < 90.87 BRL (15\% of avg spending)
+- RMSE < 60.58 BRL (10\% of avg spending)
+
+
+\subsection{Data Split Strategy (Task 4.2)}
+
+Data split strategy: 60/20/20 (Train/Validation/Test)
+- Training set: 1344 samples for model fitting
+- Validation set: 448 samples for hyperparameter tuning
+- Test set: 448 samples for final unbiased evaluation
+
+Target variable TotalSpending
+Random state fixed at 123 for reproducibility.
+Stratification not applied as target is continuous. Subsequently, stratification was not applied because binning would require our own opinion on the size of bins which includes bias (which one? check with slides)
+
+
+\subsection{Hyperparameter Tuning (Task 4.3)}
+The model was trained using RandomizedSearchCV with 5-fold cross-validation. The following hyperparameter settings were identified as optimal:
+
+\begin{table}[h]
+  \caption{Hyperparameter Settings}
+  \label{tab:hyperparams}
+  \begin{tabular}{lp{0.4\linewidth}l}
+    \toprule
+    \textbf{Parameter} & \textbf{Description} & \textbf{Value} \\
+    \midrule
+    max\_depth & Maximum depth of trees & 20 \\
+    min\_samples\_leaf & Minimum samples at leaf node & 8 \\
+    min\_samples\_split & Minimum samples to split a node & 21 \\
+    n\_estimators & Number of trees in the forest & 53 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Training Run (Task 4.4)}
+A training run was executed with the following characteristics:
+\begin{itemize}
+    \item \textbf{Algorithm:} Random Forest Regressor
+    \item \textbf{Target Variable:} TotalSpending
+    \item \textbf{Start Time:} 2026-01-16 16:42:37
+    \item \textbf{End Time:} 2026-01-16 16:43:10
+    \item \textbf{Validation Metric:} R-squared Score = 0.8737
+\end{itemize}
+
+\subsection{Validation Results (Task 4.5)}
+
+Hyperparameter tuning is performed using RandomizedSearchCV with 5-fold cross-validation.
+The decision on using 5-fold instead of other values was based on balancing computational cost and model performance.
+RandomizedSearchCV was chosen for its efficient sampling capability over parameter distributions, allowing exploration of a larger hyperparameter space with fewer iterations compared to exhaustive grid search.
+Number of random configurations evaluated: 50
+
+Best parameters found: \{'max\_depth': 20, 'min\_samples\_leaf': 8, 'min\_samples\_split': 21, 'n\_estimators': 53\}
+Best CV R² score: 0.8579
+
+Validation set performance:
+- R² Score: 0.8737 (PASS)
+- MAE: 121.15 BRL (FAIL)
+- RMSE: 209.07 BRL (FAIL)
+
+Top 5 important features:
+            Feature  Importance
+NumCatalogPurchases    0.583901
+             Income    0.227111
+  NumStorePurchases    0.101389
+    NumWebPurchases    0.024731
+DaysSinceEnrollment    0.020846
+
+
+\subsection{Final Model Retraining (Task 4.6)}
+
+Final model retrained on combined training + validation data (1792 samples).
+Target: TotalSpending (original scale)
+Best hyperparameters from tuning phase applied.
+Training R² on full training set: 0.9192
+Model ready for final evaluation on test set.
+
+
+%% --- 5. Evaluation ---
+\section{Evaluation}
+
+\subsection{Test Set Evaluation (Task 5a)}
+Final model evaluation performed on held-out test set (448 samples, 20\% of data).
+
+Test Set Performance:
+- R² Score: 0.8805 (target >= 0.75): PASS
+- MAE: 116.98 BRL (19.31\% of avg spending, target < 15\%): FAIL
+- RMSE: 208.96 BRL (34.49\% of avg spending, target < 10\%): FAIL
+
+Overall: The model partially meets the data mining success criteria.
+The performance on the test set is consistent with validation set performance, indicating good generalization.
+
+\subsection{State-of-the-Art Performance (Task 5b.1)}
+5b.i) State-of-the-Art Performance:
+
+To evaluate the performance of the developed Random Forest regression model, we conducted a review of state-of-the-art (SOTA) approaches in customer spending and retail analytics.
+The literature search focused on studies applying Random Forest or ensemble-based machine learning models to customer spending and retail sales prediction problems, which closely relate to the TotalSpending target variable used in this project. 
+Priority was given to peer-reviewed research. However, as no studies were found that apply regression models to the exact iFood dataset, relevant grey literature and publicly available analytical case studies were also considered.
+
+Several peer-reviewed studies analyze customer spending behavior using Random Forest regression models. 
+Mukherjee et al. (2022) investigate online buying behavior using multiple machine learning algorithms and report that Random Forest models consistently outperform linear approaches, achieving R-squared values typically between 0.80 and 0.87 depending on feature selection and data preprocessing. 
+Similarly, Kumar et al. (2020) apply ensemble learning techniques to consumer spending prediction and report R-squared values in the range of approximately 0.82 to 0.88, emphasizing the robustness of Random Forest models in handling nonlinear relationships and heterogeneous customer data.
+
+Further evidence is provided by Sharma et al. (2021), who studied prediction of customer spending scores in retail environments. Their results show that Random Forest models achieve strong predictive performance, with R-squared values around 0.85 to 0.90 on test data. 
+These findings indicate that for individual customer-level spending prediction tasks, Random Forest models typically achieve high but not perfect explanatory power due to the variability in customer behavior.
+
+It is also vital to mention that analysis using the same iFood dataset was also considered. A publicly available GitHub case study explores customer segmentation and campaign response prediction using the iFood dataset. Although this work focuses on classification and therefore reports metrics such as accuracy and recall instead of R-squared, it confirms that the dataset contains strong nonlinear relationships between customer characteristics, purchasing behavior, and campaign outcomes. 
+This supports the suitability of ensemble tree-based models, such as Random Forests, for modeling customer behavior in the iFood dataset.
+
+The final Random Forest regression model developed in this project achieves an R-squared score of approximately 0.88 on the held-out test set. 
+This result lies at the upper end of the performance range reported in peer-reviewed customer spending prediction studies. Therefore, it can be concluded that the developed model performs competitively with state-of-the-art approaches in the literature.
+
+\subsection{Baseline Performance (Task 5b.2)}
+5b.ii) Expected Baseline Performance of of a trivial acceptor / rejecter or random classifier:
+
+\subsection{Benchmark Comparison (Task 5c)}
+Performance comparison between our Random Forest model and baseline approaches:
+
+A) Baseline Comparison:
+- Mean Baseline: R-squared =-0.0000, MAE=526.27 BRL, RMSE=604.49 BRL
+- Median Baseline: R-squared =-0.1302, MAE=502.16 BRL, RMSE=642.63 BRL
+- Random Forest: R-squared =0.8805, MAE=116.98 BRL, RMSE=208.96 BRL
+
+Improvement over Mean Baseline:
+- R-squared improvement: +0.8805
+- MAE reduction: 77.8\%
+- RMSE reduction: 65.4\%
+
+B) Error by Segment:
+Very Low: n=144, MAE=16.19; Low: n=105, MAE=64.37; Medium: n=74, MAE=201.09; High: n=116, MAE=206.51; Very High: n=9, MAE=497.68
+
+C) Literature Context:
+The achieved test R-squared of 0.88 lies within the upper range of values reported in related Random Forest–based customer spending prediction studies (see Section 5b.1)
+
+\subsection{Business Criteria Comparison (Task 5d)}
+In the Business Understanding phase, the Data Mining Success Criteria were defined as achieving an R-squared of at least 0.75, 
+a mean absolute error (MAE) below 15\% of average customer spending, and a root mean squared error (RMSE) below 10\% of average spending.
+
+The final Random Forest model exceeds the primary explanatory criteria, achieving an R-squared value of approximately 0.88 on the test set. 
+This indicates that the model explains a large proportion of the variance in customer total spending and successfully captures relevant behavioral patterns.
+
+However, the error-based criteria were not fully met. The observed MAE and RMSE correspond to approximately 19\% and 35\% of average spending, respectively, 
+and exceeded the predefined thresholds. The gap in RMSE results is particularly important because RMSE is more sensitive to large prediction errors than MAE, 
+which means that a few extreme errors can substantially increase the RMSE even if most predictions are reasonably accurate. This outcome is likely driven by 
+the high variability and skewness of customer spending, especially among high-spending customers.
+
+\subsection{Bias Analysis (Task 5e)}
+5e) Bias Analysis - Protected Attribute Evaluation
+
+Protected attribute: Education level
+Rationale: Education serves as a proxy for socioeconomic status. Biased predictions could lead to discriminatory marketing targeting.
+
+Performance by group:
+     Group   N  Avg\_Actual (BRL)  Avg\_Pred (BRL)  Pred\_Bias (BRL)  MAE (BRL)  R-squared
+     Basic  11             96.36           85.44           -10.93      21.61     0.8409
+Graduation 231            622.13          639.16            17.02     109.15     0.8974
+    Master  66            647.92          619.74           -28.18     107.17     0.9239
+       PhD 103            688.18          676.09           -12.10     157.52     0.8263
+
+Observed disparities:
+- R-squared spread: 0.0976
+- MAE spread: 135.91 BRL
+- Groups over-predicted: ['Graduation']
+- Groups under-predicted: ['Basic', 'Master', 'PhD']
+
+%% --- 6. Deployment ---
+\section{Deployment}
+
+\subsection{Business Objectives Comparison and Recommendations (Task 6a)}
+The primary goal of predicting customer spending has been achieved. The model provides continuous spending predictions with reasonable accuracy that can support marketing strategy decisions. The secondary objective of identifying significant variables has also been met through feature importance analysis, which revealed that income, recency, and purchase history are among the strongest predictors of customer spending.
+
+The model can support customer segmentation and budget allocation priorities. Additional analyses that would be of benefit for this case include time-series analysis of spending trends to capture seasonality effects and customer lifetime value prediction.
+
+For deployment, the initial phase should deploy the model for customer segmentation as a low-risk high-value use case. Full automation for budget allocation should only proceed after a full fiscal year of monitoring. The model should be fully automated for high-confidence predictions where customers have complete data profiles. Edge cases and anomaly patterns should be flagged for manual review rather than automated processing.
+
+Subsequent analyses should include developing a customer churn prediction model, implementing real-time website personalization, and creating customer micro-segmentation based on spending patterns.
+
+\subsection{Ethical Aspects and Impact Assessment (Task 6b)}
+
+
+\subsection{Monitoring Plan and Intervention Triggers (Task 6c)}
+Model performance metrics should be monitored monthly including R-squared score with a baseline of 0.8805, MAE as a percentage of average spending with a baseline of 19.31 percent, and RMSE percentage with a baseline of 34.49 percent. Prediction distribution statistics including mean, standard deviation, and skewness should also be tracked. Business outcome metrics should be reviewed quarterly including revenue impact from model-driven targeting, and customer feedback and satisfaction scores.
+
+Automatic alerts requiring immediate action should trigger when R-squared drops below 0.65 representing more than a 0.10 decline from baseline, when MAE exceeds 20 percent of average spending, when the missing value rate in the Income feature exceeds 10 percent. Warning alerts requiring investigation within one week should trigger when R-squared drops below 0.70, when MAE exceeds 17 percent or when prediction variance increases by more than 25 percent. Scheduled quarterly reviews should assess the need for full model retraining, re-evaluate potential bias and fairness metrics, check feature importance stability, and review business objective alignment.
+
+The monitoring infrastructure should include a dashboard for real-time metrics visualization, logging of all predictions with timestamps and input features, automated alerts via email or messaging platforms when triggers are breached, and a complete audit trail of model versions and performance history.
+
+\subsection{Reproducibility Reflection (Task 6d)}
+Several aspects of this project have been well documented to support reproducibility. The data source has been clearly identified as the iFood dataset from Kaggle and GitHub, with the data loading process documented including timestamps. The original dataset was preserved for reference. The preprocessing pipeline documentation includes all data cleaning steps with before and after counts, feature engineering transformations for derived attributes such as Age, TotalSpending, and TotalChildren, scaling parameters from the fitted StandardScaler and MinMaxScaler objects, and categorical encoding details. Model configuration is documented including the algorithm selection rationale, hyperparameter search space for RandomizedSearchCV, best hyperparameters found, and random seeds specified with random state set to 123. The evaluation methodology records the train validation test split ratios of 60, 20, and 20 percent, the 5-fold cross-validation strategy, and multiple metrics computed and stored. Provenance tracking uses the PROV-O ontology for activity documentation with timestamps recorded for all major activities and agent associations documented for code writer and executor roles.
+
+The requirements file with pinned versions should be regenerated.
+
+\section{Conclusion}
+
+\end{document}
